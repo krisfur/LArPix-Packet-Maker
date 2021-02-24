@@ -12,6 +12,6 @@
 - Run in separate terminal before running packet-maker.py
 
 ## packet-maker.py
-- Takes one argument: HDF% file with LArPix data
+- Takes one argument: HDF5 file with LArPix data
 - Converts the HDF5 data to packets, then into PACMAN stryle messages 
 - Sends messages at a rate defined by timestamps in the data (waits as long as the difference between timestamps of each message)
