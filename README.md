@@ -4,6 +4,7 @@
  Requirements:
 - pyzmq (tested on version 18.1.1)
 - larpix-control (tested on 3.4.0)
+- LArPix HDF5 data files to use it on (tested on datalog_2020_10_19_10_13_39_CEST_.h5)
 
 ## readout.py
 - Establishes a SUB socket to take data from the emulated PACMAN card
