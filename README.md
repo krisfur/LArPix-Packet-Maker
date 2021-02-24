@@ -2,7 +2,7 @@
  Script taking LArPix HDF5 output files, converting them into PACMAN packets, and simulating a readout stream based on timestamps in the data.
  
  Requirements:
-- pyzmq (tested on version 20.0.2)
+- pyzmq (tested on version 18.1.1)
 - larpix-control (tested on 3.4.0)
 
 ## readout.py
