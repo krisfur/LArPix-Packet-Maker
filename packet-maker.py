@@ -62,6 +62,18 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         data_socket.bind(_data_server)
         echo_socket.bind(_echo_server)
         
+        # Synchronisation with readout
+        # Set up a poller, wait for signal from readout to start sending data
+        poller = zmq.Poller()
+        poller.register(cmd_socket, zmq.POLLIN)
+        items = dict(poller.poll())
+        print("Waiting for signal from readout to start sending data...")
+        if cmd_socket in items:
+            message = cmd_socket.recv()
+            print("Signal received.")
+            cmd_socket.send(b'')
+        
+
         # Send messages in intervals based on timestamps
         msgCount = 0
         for msg,timestamp,upcoming in zip(messages,timestamps,timestamps[1:]+[None]):

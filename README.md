@@ -9,9 +9,9 @@
 ## readout.py
 - Establishes a SUB socket to take data from the emulated PACMAN card
 - Writes received messages to HDF5 file
-- Run in separate terminal before running packet-maker.py
+- Run in separate terminal to packet-maker.py, press ENTER once packet-maker.py is waiting for a signal to start sending data
 
 ## packet-maker.py
 - Takes one argument: HDF5 file with LArPix data
-- Converts the HDF5 data to packets, then into PACMAN stryle messages 
+- Converts the HDF5 data to packets, then into PACMAN style messages 
 - Sends messages at a rate defined by timestamps in the data (waits as long as the difference between timestamps of each message)

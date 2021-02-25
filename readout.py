@@ -4,27 +4,34 @@ import multiprocessing
 import larpix
 from larpix.format import pacman_msg_format
 
+cmd = 'tcp://127.0.0.1:5555'
 data = 'tcp://127.0.0.1:5556'
 N_READOUTS = 1 #number of readouts
 datafile = "readout-test.h5"
 
 def readout():
     try:
+        commander = zmq.Context().socket(zmq.REQ)
+        commander.connect(cmd)
+    
         # Using SUB socket to collect data
         reader = zmq.Context().socket(zmq.SUB)
         reader.connect(data)
         reader.setsockopt(zmq.SUBSCRIBE, b"")
+        
+        print("Press ENTER to start listening...")
+        input()
+        commander.send(b'')
+        print("Signal sent to PACMAN card.")
+        commander.recv()
 
         messages = 0
         while True:
-            print("Reading from socket:", data)
             message = reader.recv()
             print("Message received:", message)
             messages += 1
             print("Total messages received:", messages)
-            #if messages >= 2019:
-            #    break
-            
+   
             print("Converting to a packet...")
             packet = pacman_msg_format.parse(message)
             print("Writing to HDF5 file:", datafile)
