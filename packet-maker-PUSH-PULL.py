@@ -47,22 +47,9 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         # Set up sockets
         ctx = zmq.Context()
         cmd_socket = ctx.socket(zmq.REP)
-        #data_socket = ctx.socket(zmq.PUB)
         data_socket = ctx.socket(zmq.PUSH)
         echo_socket = ctx.socket(zmq.PUB)
-        '''
-        socket_opts = [
-            (zmq.LINGER,100),
-            (zmq.RCVTIMEO,100),
-            (zmq.SNDTIMEO,100)
-        ]
-        for opt in socket_opts:
-            cmd_socket.setsockopt(*opt)
-            data_socket.setsockopt(*opt)
-            echo_socket.setsockopt(*opt)
-        '''
         cmd_socket.bind(_cmd_server)
-        #data_socket.bind(_data_server)
         data_socket.connect(_data_server)
         echo_socket.bind(_echo_server)
         

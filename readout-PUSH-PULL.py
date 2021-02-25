@@ -10,12 +10,9 @@ datafile = "readout-test.h5"
 
 def readout():
     try:
-        # Using SUB socket to collect data
-        #reader = zmq.Context().socket(zmq.SUB)
+        # Using PULL socket to collect data
         reader = zmq.Context().socket(zmq.PULL)
-        #reader.connect(data)
         reader.bind(data)
-        #reader.setsockopt(zmq.SUBSCRIBE, b"")
 
         messages = 0
         while True:
