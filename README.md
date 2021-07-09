@@ -14,4 +14,9 @@
 ## packet-maker.py
 - Takes one argument: HDF5 file with LArPix data
 - Converts the HDF5 data to packets, then into PACMAN style messages 
+- Optionally writes those messages to file before sending
 - Sends messages at a rate defined by timestamps in the data (waits as long as the difference between timestamps of each message)
+
+## hdf5-to-print-txt.py
+- Takes one argument: HDF5 file with LArPix data
+- Dumps to txt files strings representing: full LArPix packets, LArPix message packet tuples, byte messages, and timestamps extracted from the HDF5
