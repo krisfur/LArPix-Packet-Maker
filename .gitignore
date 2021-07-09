@@ -126,3 +126,7 @@ dmypy.json
 datalog_2020_10_19_10_13_39_CEST_.h5
 *.h5
 raw_packets
+HDF5Packets.txt
+MessagePackets.txt
+messages.txt
+timestamps.txt
