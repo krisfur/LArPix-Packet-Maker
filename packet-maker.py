@@ -25,19 +25,22 @@ def hdf5ToPackets(datafile):
     msg_breaks = [i for i in range(len(packets)) if packets[i].packet_type == 4 or i == len(packets)-1] #find the timestamp packets which signify message breaks
     msg_packets = [packets[i:j] for i,j in zip(msg_breaks[:-1], msg_breaks[1:])] #separate into messages
     print("Converting to PACMAN format...")
-    msgs = [pacman_msg_format.format(p, msg_type='DATA', ts_pacman=p[0].timestamp) for p in msg_packets] #convert to PACMAN format
+    #msgs = [pacman_msg_format.format(p, msg_type='DATA', ts_pacman=p[0].timestamp) for p in msg_packets] #convert to PACMAN format
+    msgs = [pacman_msg_format.format(p, msg_type='DATA') for p in msg_packets] #convert to PACMAN format
     timestamps = [p[0].timestamp for p in msg_packets] #extract timestamps
+    print(timestamps[0])
     print("Read complete. PACMAN style messages prepared.")
 
     # Uncomment to debug writing to HDF5 files
+    
     '''
     print("Writing to HDF5 file:", "pacman-test.h5")
     larpix.format.hdf5format.to_file("pacman-test.h5",packets)
     print("Message written to file.")
     print("Converting to a packet...")
     packets2 = [pacman_msg_format.parse(p) for p in msgs]
-    print("Writing to HDF5 file:", "readout-test.h5")
-    [larpix.format.hdf5format.to_file("readout-test.h5", p) for p in packets2]
+    print("Writing to HDF5 file:", "messages-test.h5")
+    [larpix.format.hdf5format.to_file("messages-test.h5", p) for p in packets2]
     '''
     return msgs, timestamps
 
@@ -62,12 +65,12 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         data_socket.bind(_data_server)
         echo_socket.bind(_echo_server)
         
+        print("Waiting for signal from readout to start sending data...")
         # Synchronisation with readout
         # Set up a poller, wait for signal from readout to start sending data
         poller = zmq.Poller()
         poller.register(cmd_socket, zmq.POLLIN)
         items = dict(poller.poll())
-        print("Waiting for signal from readout to start sending data...")
         if cmd_socket in items:
             message = cmd_socket.recv()
             print("Signal received.")
