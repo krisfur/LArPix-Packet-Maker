@@ -2,6 +2,7 @@
 import time
 import sys
 import multiprocessing
+import random 
 
 #larpix imports
 import larpix
@@ -24,11 +25,10 @@ def hdf5ToPackets(datafile):
     print("Separating into messages based on timestamp packets...")
     msg_breaks = [i for i in range(len(packets)) if packets[i].packet_type == 4 or i == len(packets)-1] #find the timestamp packets which signify message breaks
     msg_packets = [packets[i:j] for i,j in zip(msg_breaks[:-1], msg_breaks[1:])] #separate into messages
+    msgs = [pacman_msg_format.format(p, msg_type='DATA') for p in msg_packets]
     print("Converting to PACMAN format...")
     #msgs = [pacman_msg_format.format(p, msg_type='DATA', ts_pacman=p[0].timestamp) for p in msg_packets] #convert to PACMAN format
-    msgs = [pacman_msg_format.format(p, msg_type='DATA') for p in msg_packets] #convert to PACMAN format
-    timestamps = [p[0].timestamp for p in msg_packets] #extract timestamps
-    print(timestamps[0])
+    word_lists = [pacman_msg_format.parse_msg(p)[1] for p in msgs] #retrieve lists of words from each message
     print("Read complete. PACMAN style messages prepared.")
 
     # Uncomment to debug writing to HDF5 files
@@ -42,10 +42,10 @@ def hdf5ToPackets(datafile):
     print("Writing to HDF5 file:", "messages-test.h5")
     [larpix.format.hdf5format.to_file("messages-test.h5", p) for p in packets2]
     '''
-    return msgs, timestamps
+    return word_lists
 
 # Instance of a PACMAN card
-def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
+def pacman(_echo_server,_cmd_server,_data_server,word_lists):
     try:
         # Set up sockets
         ctx = zmq.Context()
@@ -78,14 +78,16 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         
 
         # Send messages in intervals based on timestamps
-        msgCount = 0
-        for msg,timestamp,upcoming in zip(messages,timestamps,timestamps[1:]+[None]):
-            data_socket.send(msg)
-            msgCount += 1
-            print("Total messages sent:",msgCount)
-            if upcoming != None:
-                print("Next message in: %ds" %(upcoming-timestamp))
-                time.sleep(upcoming-timestamp)
+        message_count = 0
+        for i in word_lists:
+            data_socket.send(pacman_msg_format.format_msg('DATA',i))
+            print(pacman_msg_format.parse_msg(pacman_msg_format.format_msg('DATA',i)))
+            message_count += 1
+            print("Total messages sent:",message_count)
+            next_sleep = random.randrange(1,3)
+            if message_count != len(word_lists):
+                print("Next message in: %ds" %(next_sleep))
+                time.sleep(next_sleep)
             
     except:
         raise
@@ -98,7 +100,7 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
 
 def main(*args):
     # Fetch messages and timestamps
-    messages, timestamps = hdf5ToPackets(args[0])
+    word_lists = hdf5ToPackets(args[0])
     start_time = time.time()
     # Start PACMAN cards
     def start(task, *args):
@@ -106,7 +108,7 @@ def main(*args):
         process.daemon = True
         process.start()
     for i in range(N_PACMAN):
-        start(pacman(echo,cmd,data,messages,timestamps), i)
+        start(pacman(echo,cmd,data,word_lists), i)
     print("Total elapsed time:",time.time()-start_time)
 
 
